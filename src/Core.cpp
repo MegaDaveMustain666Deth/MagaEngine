@@ -6,6 +6,8 @@
 #include <time.h>
 #include <glad/glad.h>
 #include <string>
+#include <ErrorChecker.h>
+#include <Enums.h>
 
 namespace Core 
 {
@@ -21,31 +23,18 @@ namespace Core
     void initalize()
     {
 
-        if (!glfwInit())
-        {
-            std::cerr << "glfw isnt init" << std::endl;
-            exit(-1);
-        }
+        CheckError((bool)glfwInit(), Error::INITIALIZATION_GLFW);
 
         glfwSetErrorCallback(errorCallback);
 
         monitor = glfwGetPrimaryMonitor();
         window = glfwCreateWindow(100, 100, "window", NULL, NULL);
 
-        if (!window)
-        {
-            glfwTerminate();
-            std::cerr << "error: window is null" << std::endl;
-            exit(-1);
-        }
+        CheckError((bool)window, Error::CREATE_WINDOW);
 
         glfwMakeContextCurrent(window);
 
-        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-        {
-            std::cerr << "error" << std::endl;
-            exit(-1);
-        }
+        CheckError((bool)gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), Error::LOAD_GLAD);
 
         shader.load("res/vertex.vert", "res/fragment.frag");
 
