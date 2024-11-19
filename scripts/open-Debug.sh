@@ -1,1 +1,3 @@
-./build/Debug/build/bin/MegaEngine
+cd build/Debug/build
+./MegaEngine
+cd ../../../

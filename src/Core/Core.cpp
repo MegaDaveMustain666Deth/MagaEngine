@@ -1,13 +1,13 @@
-#include <Core.h>
+#include "Core.h"
+#include "Renderer/Shader.h"
+#include "Tools/ErrorChecker.h"
+#include "Tools/Enums.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <fstream>
-#include <Shader.h>
 #include <time.h>
 #include <glad/glad.h>
 #include <string>
-#include <ErrorChecker.h>
-#include <Enums.h>
 
 namespace Core 
 {
@@ -16,14 +16,16 @@ namespace Core
     int frameCount;
     float deltaTime;
     double previousTime;
-    Shader shader;
     clock_t start, end;
 
 
     void initalize()
     {
-
         CheckError((bool)glfwInit(), Error::INITIALIZATION_GLFW);
+
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         glfwSetErrorCallback(errorCallback);
 
@@ -33,19 +35,14 @@ namespace Core
         CheckError((bool)window, Error::CREATE_WINDOW);
 
         glfwMakeContextCurrent(window);
+        glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 
         CheckError((bool)gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), Error::LOAD_GLAD);
-
-        shader.load("res/vertex.vert", "res/fragment.frag");
-
-        glEnable(GL_MULTISAMPLE);
-        glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
     }
 
     void beginFrame()
     {
         start = clock();
-        glfwPollEvents();
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
     }
@@ -53,26 +50,11 @@ namespace Core
     void endFrame()
     {
         glfwSwapBuffers(window);
-        end = clock();
-
-        double currentTime = glfwGetTime();
-
-        frameCount++;
-        if ( currentTime - previousTime >= 1.0 )
-        {
-            std::string fps = (std::string)"windwow" + " fps: " + std::to_string(frameCount);
-            setWindowTitle(fps);
-
-            frameCount = 0;
-            previousTime = currentTime;
-        }
-        deltaTime = ((float) end - start) / CLOCKS_PER_SEC;
+        glfwPollEvents();
     }
 
     void cleanUp()
     {
-        shader.cleanUp();
-
         glfwTerminate();
     }
     

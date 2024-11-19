@@ -1,6 +1,7 @@
-#include <ErrorChecker.h>
-#include <Enums.h>
+#include "ErrorChecker.h"
+#include "Enums.h"
 #include <iostream>
+#include <glad/glad.h>
 
 void ErrorLog(const char *text)
 {
@@ -22,12 +23,9 @@ void CheckError(bool success, const Error::ErrorType& type)
         case Error::LOAD_GLAD:
             ErrorLog("LOAD_GLAD");
             break;
+        default:
+            break;
         }
 
     }
-}
-
-void CheckError(int shader, const Error::ErrorType& type)
-{
-
 }

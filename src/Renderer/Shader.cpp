@@ -1,9 +1,11 @@
-#include <Shader.h>
+#include "Shader.h"
+
 #include <glad/glad.h>
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <glm/gtc/type_ptr.hpp>
 
 std::string getTextFromFile(std::filesystem::path path)
 {
@@ -38,8 +40,8 @@ unsigned int compileShader(unsigned int shaderType, const char* textShader, std:
 
 void Shader::load(std::string vertexPath, std::string fragmentPath) 
 {
-    unsigned int vs = compileShader(GL_VERTEX_SHADER, getTextFromFile(vertexPath).c_str(), "vertex");
-    unsigned int fs = compileShader(GL_FRAGMENT_SHADER, getTextFromFile(fragmentPath).c_str(), "fragment");
+    unsigned int vs = compileShader(GL_VERTEX_SHADER, getTextFromFile(vertexPath).c_str(), "VERTEX");
+    unsigned int fs = compileShader(GL_FRAGMENT_SHADER, getTextFromFile(fragmentPath).c_str(), "FRAGMENT");
 
     _id = glCreateProgram();
     glAttachShader(_id, vs);
@@ -85,7 +87,7 @@ void Shader::setFloat(const std::string& name, float value)
 
 void Shader::setMat4(const std::string& name, glm::mat4 value) 
 {
-    glUniformMatrix4fv(glGetUniformLocation(_id, name.c_str()), 1, GL_FALSE, &value[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(_id, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
 }
 
 void Shader::setVec3(const std::string& name, const glm::vec3& value) 

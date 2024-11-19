@@ -1,1 +1,3 @@
-./build/Release/build/bin/MegaEngine
+cd build/Release/build
+./MegaEngine
+cd ../../../

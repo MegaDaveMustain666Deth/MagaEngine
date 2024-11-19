@@ -1,11 +1,12 @@
 require "vendor/premake-ninja/ninja"
 
-workspace "Mega Engine"
+workspace "MegaEngine"
     configurations { "Debug", "Release" }
     architecture "x64"
     location "build"
     toolset "Clang"
     include "vendor/glad/glad.lua"
+    include "vendor/yaml.lua"
 
 project "MegaEngine"
     language "C++"
@@ -13,20 +14,21 @@ project "MegaEngine"
 
     files
     {
-        "src/*.cpp"
+        "src/**.cpp",
     } 
 
     includedirs
     {
         "src",
-        "usr/include/GLFW",
+        "usr/include",
         "vendor/glad/include",
-        "vendor/json/include"
+        "vendor/json/include",
+        "vendor/yaml/include"   
     }
 
     links
     {
-        "glfw", "glad"
+        "glfw", "glad", "yaml"
     }
 
     defines
@@ -38,13 +40,14 @@ project "MegaEngine"
         kind "ConsoleApp"
         symbols "On"
         runtime "Debug"
-        targetdir "build/Debug/build/bin"
+        targetdir "build/Debug/build"
         objdir  "build/Debug/obj"
-        postbuildcommands "{COPYDIR} ../res Debug/build"
+        postbuildcommands "{COPYDIR} ../ExampleGame/res Debug/build"
 
     filter "configurations:Release"
         kind "WindowedApp"
         runtime "Release"
-        targetdir "build/Release/build/bin"
+        optimize "On"
+        targetdir "build/Release/build"
         objdir  "build/Release/obj"
-        postbuildcommands "{COPYDIR} ../res Release/build"
+        postbuildcommands "{COPYDIR} ../ExampleGame/res Release/build"
