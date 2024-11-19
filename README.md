@@ -1,1 +1,1 @@
-# MegaEngine уже готов, но губами          
+# MegaEngine is ready, but GUBAMI
