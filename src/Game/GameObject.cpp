@@ -1,7 +1,8 @@
 #include "GameObject.h"
 
-GameObject::GameObject(int beginVertex, float amountVertices)
+#include "Renderer/MeshRenderer.h"
+
+MeshRenderer* GameObject::GetMeshRendererPtr()
 {
-    _beginVertex = beginVertex;
-    _amountVertices = amountVertices;
+    return &_renderer;
 }

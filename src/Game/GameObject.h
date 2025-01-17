@@ -1,12 +1,13 @@
 #pragma once 
+
 #include "Transform.h"
+#include "Renderer/MeshRenderer.h"
 
 struct GameObject
 {
 public:
-    GameObject(int beginVertex, float amountVertices);
+    Transform transform;
+    MeshRenderer* GetMeshRendererPtr();
 private:
-    int _beginVertex;
-    float _amountVertices;
-    Transform _transform;
+    MeshRenderer _renderer;
 };

@@ -17,6 +17,16 @@ std::string getTextFromFile(std::filesystem::path path)
     return result;
 }
 
+Shader::Shader(std::string vertexPath, std::string fragmentPath)
+{
+    load(vertexPath, fragmentPath);
+}
+
+Shader::~Shader()
+{
+    glDeleteProgram(_id);
+}
+
 unsigned int compileShader(unsigned int shaderType, const char* textShader, std::string shaderTypeName)
 {
     unsigned shader = glCreateShader(shaderType);
@@ -34,7 +44,7 @@ unsigned int compileShader(unsigned int shaderType, const char* textShader, std:
         glGetShaderInfoLog(shader, 1024, NULL, infoLog);
         std::cout << "error: shader compilation of type: " << shaderTypeName << "\n" << infoLog << "\n---------------------------------------------------\n";
     }
-    
+
     return shader;
 }
 
@@ -42,6 +52,8 @@ void Shader::load(std::string vertexPath, std::string fragmentPath)
 {
     unsigned int vs = compileShader(GL_VERTEX_SHADER, getTextFromFile(vertexPath).c_str(), "VERTEX");
     unsigned int fs = compileShader(GL_FRAGMENT_SHADER, getTextFromFile(fragmentPath).c_str(), "FRAGMENT");
+    textShader1 = getTextFromFile(vertexPath);
+    textShader2 = getTextFromFile(fragmentPath);
 
     _id = glCreateProgram();
     glAttachShader(_id, vs);
@@ -100,7 +112,9 @@ void Shader::setVec2(const std::string& name, const glm::vec2& value)
     glUniform2fv(glGetUniformLocation(_id, name.c_str()), 1, &value[0]);
 }
 
-void Shader::cleanUp()
+void Shader::log()
 {
-    glDeleteProgram(_id);
+    std::cout << _id << std::endl;
+    std::cout << textShader1 << std::endl;
+    std::cout << textShader2 << std::endl;
 }

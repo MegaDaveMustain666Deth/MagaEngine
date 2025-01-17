@@ -6,77 +6,75 @@
 #include <vector>
 #include <fstream>
 #include <filesystem>
+#include <glm/vec3.hpp>
 
-Scene::Scene(std::string sceneName)
-{
-    Load(sceneName);
-}
 
 void Scene::Load(std::string sceneName)
 {
-    int amountVertices = 0, amountIndices = 0;
-
-    YAML::Node sceneConf = YAML::LoadFile(std::string("res/Scenes/Scene1.yaml"));
-
-    int amountObjets = sceneConf["Objects"].size();
+    YAML::Node sceneConf = YAML::LoadFile(std::string("res/Scenes/" + sceneName + ".yaml"));
+    int amountVertices = 0, amountIndices = 0, indexVertices = 0, indexIndices = 0,
+    amountObjets = sceneConf["Objects"].size();
+    std::vector<MeshRenderer*> meshRenderers;
 
     for(int i = 0; i < amountObjets; i++)
     {
         amountVertices += sceneConf["Objects"]["obj" + std::to_string(i)]["vertices"].size();
         amountIndices += sceneConf["Objects"]["obj" + std::to_string(i)]["indices"].size();
+
     }
 
     float *vertices = (float*)malloc(sizeof(float) * amountVertices);
-    unsigned int *indices = (unsigned int*)malloc(sizeof(unsigned int) * amountVertices);
+    int *indices = (int*)malloc(sizeof(int) * amountVertices);
 
     for(int i = 0; i < amountObjets; i++)
     {
-        int j;
-        int indexVertices;
-        int indexIndices;
-        int maxCount = sceneConf["Objects"]["obj" + std::to_string(i)]["vertices"].size();
-        std::cout << "maxCount" << maxCount << std::endl;
+        std::string currentObjName = "obj" + std::to_string(i);
+        int countElements = sceneConf["Objects"][currentObjName]["vertices"].size();
 
-        for(j = 0; j < maxCount; j++)
-        {
-            vertices[j] = sceneConf["Objects"]["obj" + std::to_string(i)]["vertices"][j].as<float>();
-            std::cout << "vertices " << vertices[j] << " obj " << i << std::endl;
+        for(int j = 0; j < countElements; j++)
+        {   
+            vertices[j + indexVertices] = sceneConf["Objects"][currentObjName]["vertices"][j].as<float>();
         }
 
-        indexVertices += j;
+        indexVertices += countElements;
+        countElements = sceneConf["Objects"][currentObjName]["indices"].size();
 
-        maxCount = sceneConf["Objects"]["obj" + std::to_string(i)]["indices"].size();
-        std::cout << "maxCount" << maxCount << std::endl;
-
-        for(j = 0; j < maxCount; j++)
-        {
-            indices[j] = sceneConf["Objects"]["obj" + std::to_string(i)]["indices"][j].as<unsigned int>();
-            std::cout << "indices " << indices[j] << " obj " << i << std::endl;
+        for(int j = 0; j < countElements; j++)
+        {   
+            indices[j + indexIndices] = sceneConf["Objects"][currentObjName]["indices"][j].as<int>();
         }
 
-        indexIndices += j;
+        _gameObjects.emplace_back(GameObject());
+        _gameObjects.back().transform.position.x = sceneConf["Objects"]["obj" + std::to_string(i)]["transforms"][0].as<float>();
+        _gameObjects.back().transform.position.y = sceneConf["Objects"]["obj" + std::to_string(i)]["transforms"][1].as<float>();
+        _gameObjects.back().transform.position.z = sceneConf["Objects"]["obj" + std::to_string(i)]["transforms"][2].as<float>();
+        _gameObjects.back().transform.rotation.x = sceneConf["Objects"]["obj" + std::to_string(i)]["transforms"][3].as<float>();
+        _gameObjects.back().transform.rotation.y = sceneConf["Objects"]["obj" + std::to_string(i)]["transforms"][4].as<float>();
+        _gameObjects.back().transform.rotation.z = sceneConf["Objects"]["obj" + std::to_string(i)]["transforms"][5].as<float>();
+        _gameObjects.back().transform.scale.x = sceneConf["Objects"]["obj" + std::to_string(i)]["transforms"][6].as<float>();
+        _gameObjects.back().transform.scale.y = sceneConf["Objects"]["obj" + std::to_string(i)]["transforms"][7].as<float>();
+        _gameObjects.back().transform.scale.z = sceneConf["Objects"]["obj" + std::to_string(i)]["transforms"][8].as<float>();
+
+        _gameObjects[i].GetMeshRendererPtr()->baseIndex = indexIndices;
+        _gameObjects[i].GetMeshRendererPtr()->transform = &_gameObjects[i].transform;
+        _gameObjects[i].GetMeshRendererPtr()->amountIndices = countElements;
+        _gameObjects[i].GetMeshRendererPtr()->shaderName = sceneConf["Objects"][currentObjName]["shader"].as<std::string>();
+
+        indexIndices += countElements;
+        meshRenderers.push_back(_gameObjects[i].GetMeshRendererPtr());
+        currentObjName = "obj" + std::to_string(i + 1);
     }
 
-    //     float vertices[] = {
-    //      0.5f,  0.5f, 0.0f,  // top right
-    //      0.5f, -0.5f, 0.0f,  // bottom right
-    //     -0.5f, -0.5f, 0.0f,  // bottom left
-    //     -0.5f,  0.5f, 0.0f   // top left 
-    // };
-    // unsigned int indices[] = {  // note that we start from 0!
-    //     0, 1, 3,  // first Triangle
-    //     1, 2, 3   // second Triangle
-    // };
-
-    _sceneRenderer.setup(vertices, indices, sizeof(float) * amountVertices, sizeof(unsigned int) * amountIndices);
+    _sceneRenderer.Setup(vertices, indices, sizeof(float) * amountVertices, sizeof(int) * amountIndices, meshRenderers);
 }
 
-void Scene::update()
+void Scene::Update()
 {
-    _sceneRenderer.render();
+    _sceneRenderer.Render();
 }
 
-void Scene::cleanUp()
+Scene::~Scene()
 {
     _sceneRenderer.cleanUp();
+    _gameObjects.clear();
 }

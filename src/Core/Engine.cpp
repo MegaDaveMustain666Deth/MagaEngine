@@ -9,18 +9,14 @@ void Engine::run()
 {
     Core::initalize();
     Scene scene("Scene1");
-    Shader shader;
-    shader.load("res/Shaders/vertex.glsl", "res/Shaders/fragment.glsl");
 
     while(!Core::windowIsOpen())
     {
         Core::beginFrame();
-        shader.use();
-        scene.update();
+        scene.Update();
         Core::endFrame();
     }
 
-    scene.cleanUp();
-    shader.cleanUp();
+    delete &scene;
     Core::cleanUp();
 }
